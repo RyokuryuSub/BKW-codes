@@ -25,8 +25,9 @@
 
 # 編集内容
 ## コマンド
+### 新コード
 <details>
-<summary>対応コード</summary>
+<summary>クリックで展開</summary>
 
 ```js
 const customCms = {
@@ -394,7 +395,8 @@ const customCms = {
 ```
 
 </details>
-<p><strong>評価</strong></p>
+
+### 評価
 
 - [x] コマンド管理のためのコード編集が容易に。
 - [x] ひとつのオブジェクトで管理でするため簡潔なコード
