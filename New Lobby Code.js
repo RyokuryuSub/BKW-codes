@@ -27,6 +27,36 @@ const customCms = {
             api.setClientOption(pId,"RightInfoText",(api.getClientOption(pId,"RightInfoText")) ? "" : customRightInfoText);
         }
     },
+    toggleShowDirection:{
+        settings:{
+            image:"fa-solid fa-arrows",
+            description:"X,Z方向を表示",
+            onBoughtMessage:"X,Z方向表示を切り替えました",
+            buyButtonText:"変更"
+        },
+        code:function(pId){
+            const axisNames = ["X","Y","Z"];
+            const sings = [{str:"-",color:"lightblue"},{str:"+",color:"orange"}];
+            const pPos = api.getPosition(pId);
+            const key = `${pId}_showDirectionArrow`
+            
+            for(let axisI = 0; axisI<3; axisI+=2) { //0,2
+                const axis = axisNames[axisI];
+                for(let singI = -1; singI<2; singI+=2) { //-1,1
+                    const sing = sings[(singI+1)/2];
+                    if(globalThis[key]) {
+                        api.clearDirectionArrow(pId,`${axis}${sing.str}`);
+                    }else {
+                        const arrowPos = [...pPos];
+                        arrowPos[axisI] += singI*100;
+                        api.setDirectionArrow(pId,`${axis}${sing.str}`,arrowPos,[{str:`${axis}${sing.str}`,style:{color:sing.color,fontSize:"15px"}}]);
+                    }
+                }
+            }
+            
+            globalThis[key] = globalThis[key] ? false : true;
+        }
+    },
     clear:{
         settings:{
             image: "trash-can", 
@@ -51,6 +81,22 @@ const customCms = {
         code:function(pId){
             const xpInfos = api.getAuraInfo(pId);
             api.sendMessage(pId,[{icon:"Aura XP Orb"},{str:`${xpInfos.totalAura} (${xpInfos.level}Lv ${xpInfos.totalAura%xpInfos.auraPerLevel}%)`}])
+        }
+    },
+    health:{
+        settings:{
+            image: "fa-solid fa-heart",
+            description:"プレイヤーの体力を取得",
+            onBoughtMessage: "取得しました",
+            buyButtonText: "取得",
+            userInput: {type:"player", excludedPlayers:[]}
+        },
+        forCm:function(args) {
+            const targetPId = api.getPlayerId(args[0]);
+            return(targetPId ? [targetPId] : "Error:指定されたプレイヤーが見つかりません")
+        },
+        code:function(pId,targetPId){
+            api.sendMessage(pId,[{str:api.getEntityName(targetPId)},{str:": "},{str:`${api.getHealth(targetPId)}`,style:{color:"pink"}},{icon:"fa-solid fa-heart",style:{color:"red"}}])
         }
     },
     clearPos:{
@@ -243,7 +289,7 @@ const customCms = {
     openMoonstoneChest:{
         settings:{
             image: "Moonstone Chest",
-            description: "ムーンストーンチェストを開く",
+            description: "ムーンストーンチェストを開く\n開かれない場合はもう一度実行してください",
             onBoughtMessage: "開きました",
             buyButtonText: "開く"
         },
@@ -255,7 +301,7 @@ const customCms = {
     openChest:{
         settings:{
             image: "Chest",
-            description: "特定の座標のチェストを開く",
+            description: "特定の座標のチェストを開く\n開かれない場合はもう一度実行してください",
             onBoughtMessage: "開きました",
             buyButtonText: "開く",
             userInput:{type:"text",placeholderText:"chestPos"}
