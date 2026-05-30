@@ -41,6 +41,18 @@ const customCms = {
             }
         }
     },
+    aura:{
+        settings:{
+            image: "Aura XP Potion",
+            description: "経験値情報を取得",
+            onBoughtMessage: "取得しました",
+            buyButtonText: "取得"
+        },
+        code:function(pId){
+            const xpInfos = api.getAuraInfo(pId);
+            api.sendMessage(pId,[{icon:"Aura XP Orb"},{str:`${xpInfos.totalAura} (${xpInfos.level}Lv ${xpInfos.totalAura%xpInfos.auraPerLevel}%)`}])
+        }
+    },
     clearPos:{
         settings:{
             image: "crosshairs",
@@ -322,7 +334,7 @@ const customCms = {
     },
     encha:{
         settings:{
-            image: "fa-solid fa-gem",
+            image: "Diamond Enchanting Table",
             description: "手に持ってるアイテムにエンチャント\nレベル エンチャント名で指定可能",
             onBoughtMessage: "エンチャントしました",
             buyButtonText: "実施",
@@ -350,7 +362,7 @@ const customCms = {
     },
     instantEncha:{
         settings:{
-            image: "fa-solid fa-gem",
+            image: "Wood Enchanting Table",
             description: "/enchaと同様にエンチャント\n元のエンチャントなどの設定を無視します",
             onBoughtMessage: "エンチャントしました",
             buyButtonText: "実施",
