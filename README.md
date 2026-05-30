@@ -54,10 +54,16 @@
 +   通常チャットのみで十分であるため削除
 
   walk
-    ブロックを透過可能に
+    ブロックを通り抜け可能に
+
++ walks
++   ブロックを一括で通り抜け可能に
 
   stop
-    ブロックを透過不能に
+    ブロックを通り抜け不可に
+
++ stops
++   ブロックを一括で通り抜け不可に
 
 - st
 -   採掘速度測定をスタートする
@@ -66,6 +72,18 @@
 - break
 -   即時破壊ON
 +   即時破壊による事故及び地形破壊防止のため削除
+
++ extraHP
++   体力増加をON/OFF
+
++ extraDamage
++   ダメージ増加をON/OFF
+
++ openMoonstoneChest
++   ムーンストーンチェストを開く
+
++ openChest
++   特定の座標のチェストを開く
 
   getPos
     座標を取得
@@ -90,11 +108,23 @@
   goodPos
     ブロックの中央に移動
 
++ clearPos
++   ブロックの端に移動
+
   extraTp
     特定座標にTPする（/tp pos の範囲外も対応）
 
 - up
 -   上方向に移動する
+
++ moveDirection
++   /moveでの移動方向の決定
+
++ move
++   特定量移動する
+
++ toggleShowDirection
++   X,Z方向を表示
 
   comReq
     プレイヤーコンパス（/tp to や /tp here をクイック発動）を取得
