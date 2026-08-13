@@ -8,6 +8,8 @@
   <dd>BKW-codesリポジトリでの活動</dd>
 </dl>
 
+
+
 # 目的
 改善前、当コードには大きな問題点がありました。
 当時のコードについては[Old Lobby Code](./Old%20Lobby%20Code.js)を参照してください。
@@ -23,16 +25,18 @@
 
 これらの改善のため、当プロジェクトは始動しました。
 
+
+
 # 編集内容
 ## コマンド
-<img src="./コマンド参考画像.png">
+<img src="./コマンド参考画像.png" width=30%;>
+
+### 機能概要
+オリジナルの「/」から始まるコマンド
 
 ### 評価
-
 - [x] コマンド管理のためのコード編集が容易に。
 - [x] ひとつのオブジェクトで管理でするため簡潔なコード
-
-### 内容
 
 ```diff
 - help
@@ -138,19 +142,26 @@
 +   BKWでのロールを確認
 ```
 
+
 ## BKWロール
+### 機能概要
+BKWにおける編集者などのロールをリーダーボードに表示する
+
 ### 評価
 - [x] 大幅な簡略化
 - [x] 脆弱性(名前に特定の文字を含ませることで編集者の判定を得られる問題)の対策
 - [x] 名前からDbIdへ変更
 
-### 内容
-#### 旧版
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 let wiki管理人 = ["aaa_"];
 let wiki主要編集者 = ["Ryoku", "5kaideta_yuuto","yey_"];
 let wiki編集者 = ["reiku_168_398", "1000yen","Bourei"];
 ```
+
 ```js
 function isMobile(pid) {
     const MP = api.isMobile(pid);
@@ -200,7 +211,11 @@ function isMobile(pid) {
 
 }
 ```
-#### 新板
+</details>
+
+<details>
+<summary>新板</summary>
+
 ```js
 const wikiPositions = [
     {
@@ -254,6 +269,7 @@ const customlobbyLeaderboardInfo = {
     }
 };
 ```
+
 ```js
 const customCms = {
     //中略
@@ -277,22 +293,30 @@ const customCms = {
 }
 ```
 
+</details>
+
+
 ## ダメージ表示
 新版:<img src="./ダメージ表示.png" width=40%;> 旧版:<img src="./ダメージ表示_旧版.png" width=40%;>
+### 機能概要
+モブやプレイヤーを攻撃した際に攻撃の内容を表示
 
 ### 評価
 - [x] より攻撃内容がわかりやすく
 - [x] 簡略化
 - [x] モブへの攻撃も同様に反映
 
-### 内容
-#### 旧版
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerDamagingOtherPlayer = (attacker, damager, damage, item, bodyPartHit, damagerDbId) => {
     hp = api.getHealth(damager) - damage;
     api.sendFlyingMiddleMessage(attacker, [{ str: `damage:${String(damage)}\n\nlefthp:${hp}`, style: { color: "red" } }], 50);
 };
 ```
+
 ```js
 onPlayerDamagingMob = (pId, mId, damage, item) => {
     lh = api.getHealth(mId);
@@ -300,7 +324,11 @@ onPlayerDamagingMob = (pId, mId, damage, item) => {
     //以下略
 };
 ```
-#### 新版
+</details>
+
+<details>
+<summary>新版</summary>
+
 ```js
 function sendDamageMessage(attacker,damager,damage,item) {
     const health = api.getHealth(damager) -damage,
@@ -320,13 +348,18 @@ onPlayerDamagingOtherPlayer = sendDamageMessage;
 onPlayerDamagingMob = sendDamageMessage;
 ```
 
+</details>
+
+
 ## Bショップ
 ### 評価
 - [x] 不要/用途不明な機能(ポーションの購入など)の削除
 - [x] コマンドを全てBショップ対応にして便利に
 
-### 内容
-#### 旧版
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerJoin = (pid) => {
     api.createShopItem("Command", "help", { image: "terminal", description: "コマンドヘルプを表示する", onBoughtMessage: "ヘルプをチャットに送信しました" });
@@ -419,7 +452,12 @@ onPlayerBoughtShopItem = (pid, categoryKey, itemKey, item, userInput) => {
     }
 };
 ```
-#### 新版
+
+</details>
+
+<details>
+<summary>新版</summary>
+
 ```js
 onPlayerJoin = (pId) => {
     for(let customCm in customCms) {
@@ -430,11 +468,15 @@ onPlayerJoin = (pId) => {
 ```
 +コマンド定義部
 
+
 ## 参加時の右側情報テキスト表示
+### 機能概要
+右側情報テキストを設定する
+
 ### 評価
 - [x] 簡略化
 
-### 内容
+### コード内容
 ####　旧版
 ```js
 onPlayerJoin = (pid) => {
@@ -473,6 +515,10 @@ onPlayerJoin = (pId) => {
 }
 ```
 
+</details>
+
+
+
 # そのままの機能
 ## 更新通知
 ### 機能概要
@@ -482,24 +528,36 @@ onPlayerJoin = (pId) => {
 ### 理由
 - 消す理由がないこと
 
-### 内容
+### コード内容
+<details>
+<summary>現行版</summary>
+
 ```js
 api.broadcastMessage("World codeを更新しました");
 ```
+
+</details>
+
 
 ## コード実行
 ### 機能概要
 文字列のコードを実行する
 
 ### 理由
-- コードブロックでの利用への影響を考慮
+- コードブロックでのこの機能の利用への影響を考慮
 
-### 内容
+### コード内容
+<details>
+<summary>現行版</summary>
+
 ```js
 function executeCode(codeString) {
     const func = new Function(codeString); func();
 }
 ```
+
+</details>
+
 
 ## 遅延実行/遅延取得
 ### 機能概要
@@ -508,7 +566,10 @@ function executeCode(codeString) {
 ### 理由
 - 拡張性、利便性を考慮
 
-### 内容
+### コード内容
+<details>
+<summary>現行版</summary>
+
 ```js
 if (!globalThis.delayQueue) {
     globalThis.delayQueue = [];
@@ -537,6 +598,10 @@ tick = () => {
 };
 ```
 
+</details>
+
+
+
 # アーカイブされた機能
 ## ダメージ変更機能
 ### 機能概要
@@ -546,7 +611,10 @@ tick = () => {
 - 目的/利益が不明
 - 現在利用されていない
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 const damageList = {
     "Gold Sword": 40,
@@ -574,14 +642,20 @@ onPlayerDamagingOtherPlayer = (ap, dp, dd, item, body, dbid) => {
 };
 ```
 
+</details>
+
+
 ## キルログコード
 ### 機能概要
 オリジナルキルログを出力
 
-### 理由
+### アーカイブ理由
 - 既にコメントアウトされていたため
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 /* === ここからkillログコード === */
 function doAllPlayers(func) {
@@ -650,6 +724,9 @@ onPlayerKilledOtherPlayer = (attackingPlayer, killedPlayer, damageDealt, withIte
 /* === ここまでKillログコード === */
 ```
 
+</details>
+
+
 ## コンパスTP
 ### 機能概要
 プレイヤー(対象)の名前が書かれたコンパスを
@@ -661,7 +738,10 @@ onPlayerKilledOtherPlayer = (attackingPlayer, killedPlayer, damageDealt, withIte
 - 不適切な利用(連打など)が確認されたため
 - アーカイブするかどうかの投票を予定中
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerDropItem = (pId, x, y, z, item, val, fromI) => {
     if (comTp(pId, api.getItemSlot(pId, fromI), true)) {
@@ -703,6 +783,9 @@ function comTp (pId,held,to) {
 globalThis.comTp = comTp
 ```
 
+</details>
+
+
 ## 投擲物ログ
 ### 機能概要
 投擲物の着弾に関して、タイプ、時間、ヒット位置、発射元をログ出力する
@@ -711,7 +794,10 @@ globalThis.comTp = comTp
 - 投擲物に関する検証が予定されていないこと
 - 無意識にスパムに利用される可能性があること
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 globalThis.lastThrowableUse = {};
 onPlayerUsedThrowable = (pId, throwableName, throwableEId) => {
@@ -732,6 +818,8 @@ onPlayerThrowableHitTerrain = (pId, throwableName, throwableEId) => {
     //api.broadcastMessage(text)
 };
 ```
+</details>
+
 
 ## ペット育成機能調整
 ### 機能概要
@@ -744,7 +832,10 @@ onPlayerThrowableHitTerrain = (pId, throwableName, throwableEId) => {
 ### アーカイブ理由
 - ペット育成に関する検証が予定されていない/完了していること
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerDamagingMob = (pId, mId, damage, item) => {
     //中略
@@ -763,6 +854,8 @@ onPlayerDamagingMob = (pId, mId, damage, item) => {
     api.setMobSetting(mId, "petInfo", pet);
 };
 ```
+</details>
+
 
 ## 戦利品レアリティ表示
 ### 機能概要
@@ -772,7 +865,10 @@ onPlayerDamagingMob = (pId, mId, damage, item) => {
 - 他の検証方法も見つかり、この機能が使われなくなったこと
 - この検証が予定されていないことこと
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
     const block = api.getBlock(x, y, z);
@@ -785,6 +881,9 @@ onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
 }
 ```
 
+</details>
+
+
 ## 採掘時間表示
 ### 機能概要
 採掘開始とブロック破壊時の記録から採掘にかかった時間を取得する機能
@@ -793,7 +892,10 @@ onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
 - 他の検証方法(ストップウォッチ等)があること
 - この検証が予定されていないことこと
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 const change = { x: 10166, y: 10057, z: 10170 };
 onPlayerChangeBlock = (pId, x, y, z, from, to, dropItem, fromInfo, toInfo) => {
@@ -810,6 +912,9 @@ function start() {
 }
 ```
 
+</details>
+
+
 ## BAN表示
 ### 機能概要
 あらかじめ登録しておいたプレイヤーが参加した際に「banned: プレイヤー名」と表示する機能
@@ -819,6 +924,9 @@ function start() {
 - 誰も登録されていないこと
 
 ### 内容
+<details>
+<summary>旧版</summary>
+
 ```js
 const banned = [];
 onPlayerJoin = (pid) => {
@@ -829,6 +937,9 @@ onPlayerJoin = (pid) => {
 };
 ```
 
+</details>
+
+
 ## 自ネームタグ消し
 ### 機能概要
 自分のネームタグを消す機能
@@ -837,9 +948,14 @@ onPlayerJoin = (pid) => {
 - 利用されていないこと
 - 利用する利益がないこと
 
-### 内容
+### コード内容
+<details>
+<summary>旧版</summary>
+
 ```js
 function nameTagClear(pid) {
     api.setTargetedPlayerSettingForEveryone(pid, "nameTagInfo", { content: [], backgroundColor: "", }, true);
 }
 ```
+
+</details>
