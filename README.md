@@ -477,7 +477,9 @@ onPlayerJoin = (pId) => {
 - [x] 簡略化
 
 ### コード内容
-####　旧版
+<details>
+<summary>旧版</summary>
+
 ```js
 onPlayerJoin = (pid) => {
 	//中略
@@ -487,7 +489,12 @@ onPlayerJoin = (pid) => {
 	//中略
 };
 ```
-#### 新版
+
+</details>
+
+<details>
+<summary>新版</summary>
+
 ```js
 const link = "htt" + "ps:/" + "/bloxd.wikiru." + "jp";
 const customRightInfoText = [
