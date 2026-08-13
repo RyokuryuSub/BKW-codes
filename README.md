@@ -27,9 +27,6 @@
 ## コマンド
 <img src="./コマンド参考画像.png">
 
-### 新コード
-定義部: [New Lobby Code 1~374](./New%20Lobby%20Code.js#L1-L386)
-
 ### 評価
 
 - [x] コマンド管理のためのコード編集が容易に。
@@ -139,4 +136,145 @@
 
 + getWikiPosition
 +   BKWでのロールを確認
+```
+
+## BKWロール
+### 評価
+- [x] 大幅な簡略化
+- [x] 脆弱性(名前に特定の文字を含ませることで編集者の判定を得られる問題)の対策
+- [x] 名前からDbIdへ変更
+
+### 内容
+#### 旧版
+```js
+let wiki管理人 = ["aaa_"];
+let wiki主要編集者 = ["Ryoku", "5kaideta_yuuto","yey_"];
+let wiki編集者 = ["reiku_168_398", "1000yen","Bourei"];
+```
+中略
+```js
+function isMobile(pid) {
+    const MP = api.isMobile(pid);
+    const name = api.getEntityName(pid);
+
+    api.setClientOption(pid, 'lobbyLeaderboardInfo', {
+        name: {
+            displayName: "Name",
+            sortPriority: 2,
+        },
+        deviceType: {
+            displayName: "DeviceType",
+            sortPriority: 3,
+        },
+        wiki: {
+            displayName: "wiki編集者",
+            sortPriority: 0,
+        },
+    });
+
+    let device = MP ? "Mobile" : "PC";
+
+    we = wiki編集者.some(el => name.includes(el));
+    wa = wiki主要編集者.some(el => name.includes(el));
+    wo = wiki管理人.some(el => name.includes(el));
+    let wiki;
+    let stpsf = api["setTargetedPlayerSettingForEveryone"];
+    let cILL = "colorInLobbyLeaderboard";
+    if (we) {
+        wiki = "編集者";
+        stpsf(pid, cILL, "lime", true);
+    } else if (wa) {
+        wiki = "主要編集者";
+        stpsf(pid, cILL, "blue", true);
+    } else if (wo) {
+        wiki = "管理人";
+        stpsf(pid, cILL, "yellow", true);
+    } else {
+        wiki = "なんでもない人";
+        stpsf(pid, cILL, "white", true);
+    }
+
+    stpsf(pid, 'lobbyLeaderboardValues', {
+        deviceType: device,
+        wiki: wiki
+    });
+
+}
+```
+#### 新板
+```js
+const wikiPositions = [
+    {
+        name:"wiki管理人",
+        color:"lime",
+        level:3,
+        pDbIds:[
+            "h3UneKWxIbhyJNmqWZR2q",//aaa_
+        ]
+    },
+    {
+        name:"wiki主要編集者",
+        color:"blue",
+        level:2,
+        pDbIds:[
+            "Vqkj12sBFK_2wpcaFcWGz", //Ryokuryusei_
+            //Bourei
+            //1000yen
+            //Zombiekun
+            //yuuto
+        ]
+    },
+    {
+        name:"wiki編集者",
+        color:"yellow",
+        level:1,
+        pDbIds:[
+            //reiku
+            "-rNnqMMTdKschR4LkpCja"//yey
+        ]
+    },
+    {
+        name:"閲覧者",
+        color:"white",
+        level:0,
+        pDbIds:[]
+    }
+]
+const customlobbyLeaderboardInfo = {
+    name: {
+        displayName: "Name",
+        sortPriority: 2,
+    },
+    deviceType: {
+        displayName: "DeviceType",
+        sortPriority: 3,
+    },
+    wiki: {
+        displayName: "wiki編集者",
+        sortPriority: 0,
+    }
+};
+```
+中略
+```js
+const customCms = {
+    //中略
+    getWikiPosition:{
+  		settings:{
+  			image: "fa-solid fa-lock-open",
+  			description: "BKWでのロールを確認します",
+  			onBoughtMessage: "表示しました",
+  			buyButtonText: "確認"
+  		},
+  		code:function(pId,sendMessage=true) {
+  			const pDbId = api.getPlayerDbId(pId);
+  			let pWikiPosition = wikiPositions[wikiPositions.length-1];
+  			wikiPositions.forEach(wikiPosition=>{
+  				if(wikiPosition.pDbIds.includes(pDbId)) pWikiPosition = wikiPosition;
+  			});
+  			if(sendMessage) api.sendMessage(pId,[{str:"あなたのBKWでのロール: "},{str:pWikiPosition.name,style:{color:pWikiPosition.color}}]);
+              return(pWikiPosition);
+  		}
+  	}
+}
 ```
