@@ -656,3 +656,49 @@ onPlayerDamagingMob = (pId, mId, damage, item) => {
     api.setMobSetting(mId, "petInfo", pet);
 };
 ```
+
+## 戦利品レアリティ表示
+### 機能概要
+遺跡などに生成されるチェスト(Loot Chest)のTierを表示する機能
+
+### アーカイブ理由
+- 他の検証方法も見つかり、この機能が使われなくなったこと
+- この検証が予定されていないことこと
+
+### 内容
+```js
+onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
+    const block = api.getBlock(x, y, z);
+    const tier = api.getBlockData(x, y, z)?.perssted?.lootQuality;
+    if (tier !== undefined && api.getBlockData(x, y, z)?.persisted !== undefined) {
+        api.setClientOption(pId, "middleTextLower", String(tier));
+        api.setBlock(x, y + 1, z, block.replace("Loot Chest", "Board"));
+        api.setBlockData(x, y + 1, z, { persisted: { shared: { text: String(tier), textSize: 2 } } });
+    }
+}
+```
+
+## 採掘時間表示
+### 機能概要
+採掘開始とブロック破壊時の記録から採掘にかかった時間を取得する機能
+
+### アーカイブ理由
+- 他の検証方法(ストップウォッチ等)があること
+- この検証が予定されていないことこと
+
+### 内容
+```js
+const change = { x: 10166, y: 10057, z: 10170 };
+onPlayerChangeBlock = (pId, x, y, z, from, to, dropItem, fromInfo, toInfo) => {
+    if (x == change.x && y == change.y && z == change.z && to == "Air") {
+        now = Number(api.now());
+        time = (now - globalThis.miningStart) / 1000;
+        api.log(String(time));
+    }
+};
+
+function start() {
+    api.setBlock(10166.5, 10057, 10174.5, "Air");
+    globalThis.miningStart = Number(api.now());
+}
+```
