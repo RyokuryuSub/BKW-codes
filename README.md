@@ -151,7 +151,6 @@ let wiki管理人 = ["aaa_"];
 let wiki主要編集者 = ["Ryoku", "5kaideta_yuuto","yey_"];
 let wiki編集者 = ["reiku_168_398", "1000yen","Bourei"];
 ```
-中略
 ```js
 function isMobile(pid) {
     const MP = api.isMobile(pid);
@@ -255,7 +254,6 @@ const customlobbyLeaderboardInfo = {
     }
 };
 ```
-中略
 ```js
 const customCms = {
     //中略
