@@ -1,3 +1,9 @@
+api.broadcastMessage("World codeを更新しました");
+
+function executeCode(codeString) {
+    const func = new Function(codeString); func();
+}
+
 const link = "htt" + "ps:/" + "/bloxd.wikiru." + "jp";
 const customRightInfoText = [
     {str:"Bloxd攻略 Wiki\n\t\t\t\t撮影用広場\n",style:{color:"lime",fontSize:"20px"}},
@@ -570,6 +576,32 @@ function sendDamageMessage(attacker,damager,damage,item) {
 }
 onPlayerDamagingOtherPlayer = sendDamageMessage;
 onPlayerDamagingMob = sendDamageMessage;
+
+if (!globalThis.delayQueue) {
+    globalThis.delayQueue = [];
+}
+
+function getMsg(pid, x, y, z, callback) {
+    api.getBlock(x, y, z);
+    globalThis.delayQueue.push({ pid, x, y, z, wait: 5, callback });
+}
+
+tick = () => {
+    for (let i = globalThis.delayQueue.length - 1; i >= 0; i--) {
+        const task = globalThis.delayQueue[i];
+        task.wait--;
+        if (task.wait <= 0) {
+            const raw = api.getBlockData(task.x, task.y, task.z)?.persisted?.shared?.text;
+            if (raw) {
+                const data = eval(raw);
+                if (typeof task.callback === "function") {
+                    task.callback(task.pid, data);
+                }
+            }
+            globalThis.delayQueue.splice(i, 1);
+        }
+    }
+};
 
 /* 以下、停止中の機能 */
 /*
