@@ -520,6 +520,7 @@ onPlayerJoin = (pId) => {
         wiki: wikiPosition.name
     },true);
     api.setTargetedPlayerSettingForEveryone(pId,"colorInLobbyLeaderboard",wikiPosition.color,true);
+	customCms.toggleShowRightInfo.code(pId);
 }
 
 function judgeError(pId,check) {
