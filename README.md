@@ -288,22 +288,9 @@ const customCms = {
 ### 内容
 #### 旧版
 ```js
-onPlayerDamagingMob = (pId, mId, damage, item) => {
-    lh = api.getHealth(mId);
-    api.sendFlyingMiddleMessage(pId, [{ icon: item }, { str: String(damage), style: { color: "red" } }, { str: `(${lh})`, style: { color: "lightgray", fontSize: "10px" } },], 10);
-    let pet = api.getMobSetting(mId, "petInfo");
-    pet.lastFedAt -= 1000000;
-    if (item == "Stick") {
-        pet.friendshipPoints += 20000;
-    } else if (item == "Book") {
-        pet.superlikedFoodKnown = true;
-    } else if (item == "Code Block") {
-        const tame = api.getMobSetting(mId, "tameInfo");
-        api.sendMessage(pId, `大好物:${JSON.stringify(tame.likedFoods)}`);
-        api.sendMessage(pId, `好物:${JSON.stringify(tame.neutralFoods)}`);
-        api.sendMessage(pId, `苦手:${JSON.stringify(tame.dislikedFoods)}`);
-    }
-    api.setMobSetting(mId, "petInfo", pet);
+onPlayerDamagingOtherPlayer = (attacker, damager, damage, item, bodyPartHit, damagerDbId) => {
+    hp = api.getHealth(damager) - damage;
+    api.sendFlyingMiddleMessage(attacker, [{ str: `damage:${String(damage)}\n\nlefthp:${hp}`, style: { color: "red" } }], 50);
 };
 ```
 #### 新版
