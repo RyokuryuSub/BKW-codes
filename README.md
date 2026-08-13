@@ -352,7 +352,7 @@ onPlayerDamagingMob = sendDamageMessage;
 
 
 ## Bショップ
-<img src="./コマンド参考画像.png" width=30%;> <img src="./Bショップ_旧版.png" width=30%;>
+新版:<img src="./コマンド参考画像.png" width=30%;> 旧版: <img src="./Bショップ_旧版.png" width=30%;>
 
 ### 機能概要
 Bキーを押した時に開くショップを介した様々な機能
