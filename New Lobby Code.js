@@ -602,18 +602,3 @@ tick = () => {
         }
     }
 };
-
-/* 以下、停止中の機能 */
-/*
-onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
-    const pos = [x,y,z],
-          block = api.getBlock(pos),
-          tier = api.getBlockData(...pos)?.persisted?.lootQuality;
-    if (tier !== undefined && api.getBlockData(x, y, z)?.persisted !== undefined) {
-        pos[1]++
-        api.sendMessage(pId, [{icon:"Chest",style:{fontWeight:"15px"}},{str:`${x} ${y} ${z}: `},{str:`Tier ${tier}`}]);
-        api.setBlock(pos, block.replace("Loot Chest","Board"));
-        api.setBlockData(...pos, { persisted: { shared: { text: String(tier), textSize: 2 } } });
-    }
-};
-*/
