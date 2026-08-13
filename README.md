@@ -430,6 +430,113 @@ onPlayerJoin = (pId) => {
 ```
 +コマンド定義部
 
+## 参加時の右側情報テキスト表示
+### 評価
+- [x] 簡略化
+
+### 内容
+####　旧版
+```js
+onPlayerJoin = (pid) => {
+	//中略
+    getMsg(pid, 1077, 100, 966, (pid, data) => {
+        api.setClientOption(pid, "RightInfoText", data);
+    });
+	//中略
+};
+```
+#### 新版
+```js
+const link = "htt" + "ps:/" + "/bloxd.wikiru." + "jp";
+const customRightInfoText = [
+    {str:"Bloxd攻略 Wiki\n\t\t\t\t撮影用広場\n",style:{color:"lime",fontSize:"20px"}},
+    {str:"--------------------------------\n"},
+    {str:"Basic Info\n",style:{color:"gold"}},
+    {str:"・"},{icon:"fa-solid fa-globe",style:{color:"blue"}},{str:" Wikiru\n"},
+    {str:`\t${link}\n`},
+    {str:"・"},{icon:"youtube",style:{color:"red"}},{str:" YoutubeCh\n"},
+    {str:"\t@Bloxd攻略Wiki動画用ch\n"},
+    {str:"・"},{icon:"fa-solid fa-hammer",style:{color:"purple"}},{str:" 地形破壊禁止\n"},
+    {str:"New Things\n",style:{color:"gold"}},
+    //{str:"・Rodをもって右クリック!\n"},
+    {str:"・[Coder向け] getMsg関数\n"},
+    {str:"・[試験的] ショップメニュー\n\tCommandタブ\n\tspawnMeshEnt" + "ity\n"},
+    {str:"Previous New Things\n",style:{color:"gold"}},
+    {str:"・/helpコマンド\n"},
+    {str:"・コンパスのtp機能\n"}
+];
+```
+```js
+onPlayerJoin = (pId) => {
+	//中略
+	customCms.toggleShowRightInfo.code(pId);
+}
+```
+
+# そのままの機能
+## 更新通知
+### 機能概要
+ワールドコードの更新をお知らせする機能
+「World codeを更新しました」
+
+### 理由
+- 消す理由がないこと
+
+### 内容
+```js
+api.broadcastMessage("World codeを更新しました");
+```
+
+## コード実行
+### 機能概要
+文字列のコードを実行する
+
+### 理由
+- コードブロックでの利用への影響を考慮
+
+### 内容
+```js
+function executeCode(codeString) {
+    const func = new Function(codeString); func();
+}
+```
+
+## 遅延実行/遅延取得
+### 機能概要
+予約された内容を遅れて実行する
+
+### 理由
+- 拡張性、利便性を考慮
+
+### 内容
+```js
+if (!globalThis.delayQueue) {
+    globalThis.delayQueue = [];
+}
+
+function getMsg(pid, x, y, z, callback) {
+    api.getBlock(x, y, z);
+    globalThis.delayQueue.push({ pid, x, y, z, wait: 5, callback });
+}
+
+tick = () => {
+    for (let i = globalThis.delayQueue.length - 1; i >= 0; i--) {
+        const task = globalThis.delayQueue[i];
+        task.wait--;
+        if (task.wait <= 0) {
+            const raw = api.getBlockData(task.x, task.y, task.z)?.persisted?.shared?.text;
+            if (raw) {
+                const data = eval(raw);
+                if (typeof task.callback === "function") {
+                    task.callback(task.pid, data);
+                }
+            }
+            globalThis.delayQueue.splice(i, 1);
+        }
+    }
+};
+```
+
 # アーカイブされた機能
 ## ダメージ変更機能
 ### 機能概要
@@ -700,5 +807,39 @@ onPlayerChangeBlock = (pId, x, y, z, from, to, dropItem, fromInfo, toInfo) => {
 function start() {
     api.setBlock(10166.5, 10057, 10174.5, "Air");
     globalThis.miningStart = Number(api.now());
+}
+```
+
+## BAN表示
+### 機能概要
+あらかじめ登録しておいたプレイヤーが参加した際に「banned: プレイヤー名」と表示する機能
+
+### アーカイブ理由
+- 実用性がないこと
+- 誰も登録されていないこと
+
+### 内容
+```js
+const banned = [];
+onPlayerJoin = (pid) => {
+	//中略
+    if (banned.includes(api.getEntityName(pid))) {
+        api.log(`banned: ${api.getEntityName(pid)}`);
+    }
+};
+```
+
+## 自ネームタグ消し
+### 機能概要
+自分のネームタグを消す機能
+
+### アーカイブ理由
+- 利用されていないこと
+- 利用する利益がないこと
+
+### 内容
+```js
+function nameTagClear(pid) {
+    api.setTargetedPlayerSettingForEveryone(pid, "nameTagInfo", { content: [], backgroundColor: "", }, true);
 }
 ```
