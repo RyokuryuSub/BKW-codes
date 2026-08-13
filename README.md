@@ -276,3 +276,55 @@ const customCms = {
   	}
 }
 ```
+
+## ダメージ表示
+新版:<img src="./ダメージ表示.png" width=40%;> 旧版:<img src="./ダメージ表示_旧版.png" width=40%;>
+
+### 評価
+- [x] より攻撃内容がわかりやすく
+- [x] 簡略化
+- [x] モブへの攻撃も反映
+
+### 内容
+#### 旧版
+```js
+onPlayerDamagingMob = (pId, mId, damage, item) => {
+    lh = api.getHealth(mId);
+    api.sendFlyingMiddleMessage(pId, [{ icon: item }, { str: String(damage), style: { color: "red" } }, { str: `(${lh})`, style: { color: "lightgray", fontSize: "10px" } },], 10);
+    let pet = api.getMobSetting(mId, "petInfo");
+    pet.lastFedAt -= 1000000;
+    if (item == "Stick") {
+        pet.friendshipPoints += 20000;
+    } else if (item == "Book") {
+        pet.superlikedFoodKnown = true;
+    } else if (item == "Code Block") {
+        const tame = api.getMobSetting(mId, "tameInfo");
+        api.sendMessage(pId, `大好物:${JSON.stringify(tame.likedFoods)}`);
+        api.sendMessage(pId, `好物:${JSON.stringify(tame.neutralFoods)}`);
+        api.sendMessage(pId, `苦手:${JSON.stringify(tame.dislikedFoods)}`);
+    }
+    api.setMobSetting(mId, "petInfo", pet);
+};
+```
+#### 新版
+```js
+function sendDamageMessage(attacker,damager,damage,item) {
+    const health = api.getHealth(damager) -damage,
+        msg = [
+            {icon:item,style:{fontSize:"16px"}},
+            {str:String(damage),style:{color:"red"}}
+        ];
+    if(health >0) {
+        msg.push(
+            {str:"\n"},{icon:"fa-solid fa-heart",style:{color:"red",fontSize:"16px"}},
+            {str:String(health),style:{color:"lime"}}
+        );
+    }
+    api.sendFlyingMiddleMessage(attacker,msg,25);
+}
+onPlayerDamagingOtherPlayer = sendDamageMessage;
+onPlayerDamagingMob = sendDamageMessage;
+```
+
+
+
