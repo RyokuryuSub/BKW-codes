@@ -98,8 +98,9 @@ const customCms = {
             onBoughtMessage:"情報の表示を切り替えました",
             buyButtonText:"変更"
         },
-        code:function(pId){
-            api.setClientOption(pId,"RightInfoText",(api.getClientOption(pId,"RightInfoText")) ? "" : customRightInfoText);
+        code:function(pId,toggle){
+            toggle ??= api.getClientOption(pId,"RightInfoText")
+            api.setClientOption(pId,"RightInfoText",toggle ? "" : customRightInfoText);
         }
     },
     toggleShowDirection:{
@@ -526,7 +527,7 @@ onPlayerJoin = (pId) => {
         wiki: wikiPosition.name
     },true);
     api.setTargetedPlayerSettingForEveryone(pId,"colorInLobbyLeaderboard",wikiPosition.color,true);
-	customCms.toggleShowRightInfo.code(pId);
+	customCms.toggleShowRightInfo.code(pId,false);
 }
 
 function judgeError(pId,check) {
