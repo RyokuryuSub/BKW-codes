@@ -313,5 +313,102 @@ onPlayerDamagingOtherPlayer = sendDamageMessage;
 onPlayerDamagingMob = sendDamageMessage;
 ```
 
+## Bショップ
+### 評価
+- [x] 不要/用途不明な機能(ポーションの購入など)の削除
+- [x] コマンドを全てBショップ対応にして便利に
+
+### 内容
+#### 旧版
+```js
+onPlayerJoin = (pid) => {
+    api.createShopItem("Command", "help", { image: "terminal", description: "コマンドヘルプを表示する", onBoughtMessage: "ヘルプをチャットに送信しました" });
+    api.createShopItem("Command", "aura", { image: "Aura XP Potion", description: "今のオーラをリセットしてオーラの量を取得する", onBoughtMessage: "オーラを取得" });
+    api.createShopItem("Command", "clear", { image: "trash-can", description: "インベントリ内のアイテムを消す（ホットバーを除く）", onBoughtMessage: "削除しました" });
+    api.createShopItem("Command", "goodPos", { image: "crosshairs", description: "ブロックの真ん中に移動する", onBoughtMessage: "移動しました" });
+    api.createShopItem("Command", "getaura", {
+        userInput: { type: "text", placeholderText: "ゲットするオーラの値" },
+        image: "Aura XP Potion", buyButtonText: "ゲット", description: "オーラを追加する", onBoughtMessage: "オーラをゲット"
+    });
+    api.createShopItem("Command", "comReq", {
+        userInput: { type: "player", excludedPlayers: [] }, image: "Compass", buyButtonText: "入手", description: "指定したプレイヤー名のコンパスをゲットする", onBoughtMessage: "付与しました"
+    });
+    api.createShopItem("Command", "spawnMeshEntity", {
+        //userInput: {type: "
+        image: "head_1_0", description: "自分のスキンと同じメッシュを持ったエンティティをスポーンさせる", onBoughtMessage: "スポーンしました"
+    });
+
+    api.createShopItem("Shop", "coin", {
+        image: "Gold Coin", customTitle: "Gold Coin", canBuy: true, buyButtonText: "購入", description: "10土を使用してコインをゲットする", onBoughtMessage: "購入しました"
+    });
+    api.createShopItem("Shop", "sp_speed", {
+        image: "Splash Speed Potion", customTitle: "Splash Speed Potion", canBuy: true, buyButtonText: "購入", description: "1コインを使用してスプラッシュスピードポーションを入手する", onBoughtMessage: "購入しました"
+    });
+    api.createShopItem("Shop", "spear", {
+        image: "Diamond Spear", customTitle: "Diamond Spear", canBuy: true, buyButtonText: "購入", description: "ダイヤモンドの槍を得る", onBoughtMessage: "付与しました",
+    });
+    //以下略
+};
+```
+```js
+onPlayerBoughtShopItem = (pid, categoryKey, itemKey, item, userInput) => {
+    if (itemKey == "help") {
+        getMsg(pid, 1077, 100, 964, (pid, data) => {
+            api.sendMessage(pid, data);
+        });
+    } else if (itemKey == "aura") {
+        const aura = api.getAuraInfo(pid).totalAura;
+        api.sendMessage(pid, `${api.getAuraInfo(pid).totalAura / 100}%\n${aura}`);
+        api.setTotalAura(pid, 0);
+    } else if (itemKey == "clear") {
+        for (let p = 10; p < 46; p++) { api.setItemSlot(pid, p, "Air") ;}
+    } else if (itemKey == "goodPos") {
+        let pPos = api.getPosition(pid);
+        api.setPosition(pid, Math.floor(pPos[0]) + 0.5, Math.floor(pPos[1]), Math.floor(pPos[2]) + 0.5);
+    } else if (itemKey == "getaura") {
+        api.applyAuraChange(pid, Number(userInput));
+    } else if (itemKey == "comReq") {
+        api.broadcastMessage(userInput);
+        api.giveItem(pid, "Compass", 1, { customDisplayName: api.getEntityName(userInput), customAttributes: { enchantmentTier: !userInput ? "Tier 1" : "Tier 5" } });
+    } else if (itemKey == "spawnMeshEntity") {
+        parts = ["hat", "head", "body", "legs", "shoes", "eyebrows", "eyes", "skin"];
+        playerParts = [];
+        for (let part of parts) {
+            cosmetic = api.getPlayerCosmetic(pid, part);
+            playerParts.push(cosmetic);
+        }
+        const meshEntityId = api.attemptCreateMeshEntity("Person", {
+            size: 1,
+            pose: "standing",
+            autoRotate: true,
+            textures: { hat: playerParts[0], head: playerParts[1], body: playerParts[2], legs: playerParts[3], shoes: playerParts[4], eyebrows: playerParts[5], eyes: playerParts[6], skin: playerParts[7] },
+        }, api.getEntityName(pid));
+        api.setPosition(meshEntityId, api.getPosition(pid));
+
+        /* facing = api.getPlayerFacingInfo(pid);dir = facing.dir;
+        x = dir[0];y = dir[1];z = dir[2];
+        x = (x * 100).toFixed(2);y = (y * 100).toFixed(2);z = (z * 100).toFixed(2);
+        x = Number(x);y = Number(y);z = Number(z);
+        api.setCameraDirection(meshEntityId, [x,y,z]) */
+    }
 
 
+    if (itemKey == "coin" && categoryKey == "Shop") {
+        if (9 < api.getInventoryItemAmount(pid, "Dirt")) {
+            api.removeItemName(pid, "Dirt", 10);
+            api.giveItem(pid, "Gold Coin", 1, {});
+        } else {
+            api.sendMessage(pid, "土が足りません");
+        }
+    } else if (itemKey == "sp_speed" && categoryKey == "Shop") {
+        if (0 < api.getInventoryItemAmount(pid, "Gold Coin")) {
+            api.removeItemName(pid, "Gold Coin", 1);
+            api.giveItem(pid, "Splash Speed Potion", 1, {});
+        } else {
+            api.sendMessage(pid, "コインが足りません");
+        }
+    } else if (itemKey == "spear" && categoryKey == "Shop") {
+        api.giveItem(pid, "Diamond Spear", 1, {});
+    }
+};
+```
