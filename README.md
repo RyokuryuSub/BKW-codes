@@ -283,7 +283,7 @@ const customCms = {
 ### 評価
 - [x] より攻撃内容がわかりやすく
 - [x] 簡略化
-- [x] モブへの攻撃も反映
+- [x] モブへの攻撃も同様に反映
 
 ### 内容
 #### 旧版
@@ -291,6 +291,13 @@ const customCms = {
 onPlayerDamagingOtherPlayer = (attacker, damager, damage, item, bodyPartHit, damagerDbId) => {
     hp = api.getHealth(damager) - damage;
     api.sendFlyingMiddleMessage(attacker, [{ str: `damage:${String(damage)}\n\nlefthp:${hp}`, style: { color: "red" } }], 50);
+};
+```
+```js
+onPlayerDamagingMob = (pId, mId, damage, item) => {
+    lh = api.getHealth(mId);
+    api.sendFlyingMiddleMessage(pId, [{ icon: item }, { str: String(damage), style: { color: "red" } }, { str: `(${lh})`, style: { color: "lightgray", fontSize: "10px" } },], 10);
+    //以下略
 };
 ```
 #### 新版
@@ -422,3 +429,230 @@ onPlayerJoin = (pId) => {
 }
 ```
 +コマンド定義部
+
+# アーカイブされた機能
+## ダメージ変更機能
+### 機能概要
+特定のアイテムによるダメージを変更
+
+### アーカイブ理由
+- 目的/利益が不明
+- 現在利用されていない
+
+### 内容
+```js
+const damageList = {
+    "Gold Sword": 40,
+};
+const damagePerList = {
+    "Gold Sword": 1.5
+};
+
+onPlayerDamagingOtherPlayer = (ap, dp, dd, item, body, dbid) => {
+    if (Object.keys(damageList).includes(item)) {
+        api.attemptApplyDamage({
+            eId: ap, hitEId: dp, attemptedDmgAmt: damageList[item],
+            withItem: "Kill Spikes"
+        }) 
+        return "preventDamage";
+    }
+    if (Object.keys(damagePerList).includes(item)) {
+        api.attemptApplyDamage({
+            eId: ap, hitEId: dp, attemptedDmgAmt: dd * damagePerList[item],
+            withItem: "Kill Spikes"        
+}
+        );
+        return "preventDamage";
+    }
+};
+```
+
+## キルログコード
+### 機能概要
+オリジナルキルログを出力
+
+### 理由
+- 既にコメントアウトされていたため
+
+### 内容
+```js
+/* === ここからkillログコード === */
+function doAllPlayers(func) {
+    for (let id of api.getPlayerIds()) {
+        func(id);
+    }
+}
+/*
+let killLog = {textTime: 0, textVisible: false, pIds : ""};
+
+let tickCount = 0;
+let yMax = 0
+function tick() {
+    tickCount++
+    if(killLog.textVisible) {
+        killLog.textTime++;
+        if (killLog.textTime >= 100) {
+            api.setClientOption(killLog.pIds, "middleTextLower", "");
+                killLog.textVisible = false;
+        }
+    }
+    if(tickCount %1 === 0) {
+        pPos = 	api.getPosition(api.getPlayerId("Ryokuryusei_suisei_"))
+        pY = pPos[1]
+        if(pY !== Math.floor(pY)) {
+            if(pY > yMax) {
+                yMax = pY
+                api.broadcastMessage(String(pY))
+            }
+        }
+    }
+    if(tickCount %20 === 0) {
+        for(mId of globalThis.superMobs) {
+            api.applyImpulse(mId,0,10,0)
+            const mPos = api.getPosition(mId)
+            const mNextPos = [mPos[0],mPos[1]+1,mPos[2]]
+            const mBlock = api.getBlock(mNextPos)
+            if(mBlock === "Air") {
+                api.setBlock(mNextPos,"Dirt")
+            }
+        }
+    }
+}
+
+onPlayerKilledOtherPlayer = (attackingPlayer, killedPlayer, damageDealt, withItem) => {
+	
+    doAllPlayers((id)=>{
+        api.setClientOption(id, "middleTextLower",[
+            {str:`${api.getEntityName(attackingPlayer) }`,style:{color:"yellow"}},
+            {icon:withItem},
+            {str:` ${api.getEntityName(killedPlayer)}`,style:{color:"red"}},
+        ])
+        killLog.pIds = id
+    })
+        killLog.textTime = 0
+        killLog.textVisible = true 
+
+    api.log(withItem)
+    api.broadcastMessage([
+        {str:`${api.getEntityName(attackingPlayer)} `,style:{color:"yellow"}},
+        {icon:withItem},
+        {str:` ${api.getEntityName(killedPlayer)}`,style:{color:"red"}},
+    ])
+}
+*/
+/* === ここまでKillログコード === */
+```
+
+## コンパスTP
+### 機能概要
+プレイヤー(対象)の名前が書かれたコンパスを
+- 左クリック/投げる: /tp to 対象
+- 右クリック: /tp here 対象
+の効果を発揮するもの
+
+### アーカイブ理由
+- 不適切な利用(連打など)が確認されたため
+- アーカイブするかどうかの投票を予定中
+
+### 内容
+```js
+onPlayerDropItem = (pId, x, y, z, item, val, fromI) => {
+    if (comTp(pId, api.getItemSlot(pId, fromI), true)) {
+        return "preventDrop";
+    }
+};
+onPlayerClick = (pId, wasAlt) => {
+    comTp(pId, api.getHeldItem(pId), !wasAlt);
+};
+```
+```js
+onPlayerJoin = (pid) => {
+    //(中略)
+    getMsg(pid, 1077, 100, 968, (pid, data) => { });
+    //(中略)
+}
+```
+```
+function comTp (pId,held,to) {
+	held = held?.attributes?.customDisplayName
+	for(const targetId of api.getPlayerIds()) {
+		if(api.getEntityName(targetId) === held) {
+			if(to) {
+				const msg = [{str:api.getEntityName(pId)},{str:" ⇛ "},{icon:"Purple Portal"},{str:"\n ⇛ "},{str:api.getEntityName(targetId)}]
+				api.sendFlyingMiddleMessage(pId,msg,100)
+				api.sendFlyingMiddleMessage(targetId,msg,100)
+				api.setPosition(pId,api.getPosition(targetId))
+			}else {
+				const msg = [{str:api.getEntityName(pId)},{str:" ⇚ "},{icon:"Cyan Portal"},{str:"\n ⇚ "},{str:api.getEntityName(targetId)}]
+				api.sendFlyingMiddleMessage(pId,msg,100)
+				api.sendFlyingMiddleMessage(targetId,msg,100)
+				api.setPosition(targetId,api.getPosition(pId))
+			}
+			return(true)
+		}
+	}
+}
+
+globalThis.comTp = comTp
+```
+
+## 投擲物ログ
+### 機能概要
+投擲物の着弾に関して、タイプ、時間、ヒット位置、発射元をログ出力する
+
+### アーカイブ理由
+- 投擲物に関する検証が予定されていないこと
+- 無意識にスパムに利用される可能性があること
+
+### 内容
+```js
+globalThis.lastThrowableUse = {};
+onPlayerUsedThrowable = (pId, throwableName, throwableEId) => {
+    globalThis.lastThrowableUse[pId] = api.now();
+};
+
+onPlayerThrowableHitTerrain = (pId, throwableName, throwableEId) => {
+    const lastUse = globalThis.lastThrowableUse[pId];
+    const time = api.now() - lastUse;
+    const pName = api.getEntityName(pId);
+    const pPos = api.getPosition(pId);
+    const ePos = api.getPosition(throwableEId);
+    let text = `${throwableName}は${time}sかけて${pName}の位置から\n[`;
+    for (let i = 0; i < 3; i++) {
+        text += String(ePos[i] - pPos[i]) + ",";
+    }
+    text += "]に行きました";
+    //api.broadcastMessage(text)
+};
+```
+
+## ペット育成機能調整
+### 機能概要
+ペットを特定のアイテムを持って殴ることで特殊な効果を発揮する
+- 共通: ペットを空腹にする
+- 棒(Stick): 友情ポイント+2000
+- 本(Book): 大好物を開示
+- コードブロック(Code Block): 大好物、好物、苦手なものをログ出力
+
+### アーカイブ理由
+- ペット育成に関する検証が予定されていない/完了していること
+
+### 内容
+```js
+onPlayerDamagingMob = (pId, mId, damage, item) => {
+    //中略
+    let pet = api.getMobSetting(mId, "petInfo");
+    pet.lastFedAt -= 1000000;
+    if (item == "Stick") {
+        pet.friendshipPoints += 20000;
+    } else if (item == "Book") {
+        pet.superlikedFoodKnown = true;
+    } else if (item == "Code Block") {
+        const tame = api.getMobSetting(mId, "tameInfo");
+        api.sendMessage(pId, `大好物:${JSON.stringify(tame.likedFoods)}`);
+        api.sendMessage(pId, `好物:${JSON.stringify(tame.neutralFoods)}`);
+        api.sendMessage(pId, `苦手:${JSON.stringify(tame.dislikedFoods)}`);
+    }
+    api.setMobSetting(mId, "petInfo", pet);
+};
+```
