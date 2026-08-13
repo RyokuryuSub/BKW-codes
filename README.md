@@ -412,3 +412,13 @@ onPlayerBoughtShopItem = (pid, categoryKey, itemKey, item, userInput) => {
     }
 };
 ```
+#### 新版
+```js
+onPlayerJoin = (pId) => {
+    for(let customCm in customCms) {
+        api.createShopItem("Command",customCm,customCms[customCm].settings)
+    }
+    //中略
+}
+```
++コマンド定義部
