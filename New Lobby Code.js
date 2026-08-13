@@ -40,7 +40,7 @@ const wikiPositions = [
             //Bourei
             //1000yen
             //Zombiekun
-            //yuuto
+            "CQnbbdHCm0azGbxQhIAe5"//yuuto
         ]
     },
     {
