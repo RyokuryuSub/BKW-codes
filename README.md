@@ -127,8 +127,9 @@
 + toggleShowDirection
 +   X,Z方向を表示
 
-  comReq
-    プレイヤーコンパス（/tp to や /tp here をクイック発動）を取得
+- comReq
+-   プレイヤーコンパス（/tp to や /tp here をクイック発動）を取得
+! 迷惑な利用が確認されたため実装を検討中
 
   code
     コードを実行（編集者以上の権限が必要）
