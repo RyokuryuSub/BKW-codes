@@ -1,3 +1,72 @@
+const link = "htt" + "ps:/" + "/bloxd.wikiru." + "jp";
+const customRightInfoText = [
+    {str:"Bloxd攻略 Wiki\n\t\t\t\t撮影用広場\n",style:{color:"lime",fontSize:"20px"}},
+    {str:"--------------------------------\n"},
+    {str:"Basic Info\n",style:{color:"gold"}},
+    {str:"・"},{icon:"fa-solid fa-globe",style:{color:"blue"}},{str:" Wikiru\n"},
+    {str:`\t${link}\n`},
+    {str:"・"},{icon:"youtube",style:{color:"red"}},{str:" YoutubeCh\n"},
+    {str:"\t@Bloxd攻略Wiki動画用ch\n"},
+    {str:"・"},{icon:"fa-solid fa-hammer",style:{color:"purple"}},{str:" 地形破壊禁止\n"},
+    {str:"New Things\n",style:{color:"gold"}},
+    //{str:"・Rodをもって右クリック!\n"},
+    {str:"・[Coder向け] getMsg関数\n"},
+    {str:"・[試験的] ショップメニュー\n\tCommandタブ\n\tspawnMeshEnt" + "ity\n"},
+    {str:"Previous New Things\n",style:{color:"gold"}},
+    {str:"・/helpコマンド\n"},
+    {str:"・コンパスのtp機能\n"}
+];
+const wikiPositions = [
+    {
+        name:"wiki管理人",
+        color:"lime",
+        level:3,
+        pDbIds:[
+            "h3UneKWxIbhyJNmqWZR2q",//aaa_
+        ]
+    },
+    {
+        name:"wiki主要編集者",
+        color:"blue",
+        level:2,
+        pDbIds:[
+            "Vqkj12sBFK_2wpcaFcWGz", //Ryokuryusei_
+            //Bourei
+            //1000yen
+            //Zombiekun
+            //yuuto
+        ]
+    },
+    {
+        name:"wiki編集者",
+        color:"yellow",
+        level:1,
+        pDbIds:[
+            //reiku
+            "-rNnqMMTdKschR4LkpCja"//yey
+        ]
+    },
+    {
+        name:"閲覧者",
+        color:"white",
+        level:0,
+        pDbIds:[]
+    }
+]
+const customlobbyLeaderboardInfo = {
+    name: {
+        displayName: "Name",
+        sortPriority: 2,
+    },
+    deviceType: {
+        displayName: "DeviceType",
+        sortPriority: 3,
+    },
+    wiki: {
+        displayName: "wiki編集者",
+        sortPriority: 0,
+    }
+};
 const customCms = {
     customhelp:{
         settings:{
@@ -323,14 +392,8 @@ const customCms = {
         code:function(pId,select) {
             const direction = {X:0,Y:1,Z:2};
             globalThis[`${pId}Direction`] = direction[select];
-            updateCustomCm(pId,"move",settings => {
-                settings.description = `現在設定中の${select}`+settings.description.slice(7);
-                return(settings);
-            });
-            updateCustomCm(pId,"moveDirection",settings => {
-                settings.description = `移動方向の編集(現在${select}`+settings.description.slice(11);
-                return(settings);
-            });
+            api.updateShopItemForPlayer(pId,"Command","move",{description:`現在設定中の${select}方向へ移動\n/moveDirectionと組み合わせて使用`});
+            api.updateShopItemForPlayer(pId,"Command","moveDirection",{description:`移動方向の編集(現在${select}方向)\n/moveと組み合わせて使用`})
         }
     },
     move:{
@@ -371,9 +434,7 @@ const customCms = {
             userInput:{type:"text",placeholderText:"code"}
         },
         code:function(pId,code) {
-            if(getWikiPosition(pId).level <2) {
-                return("Error:権限が不足しています")
-            }
+            if(customCms.getWikiPosition.code(pId,false).level <2) return("Error:権限が不足しています");
             let result = eval(code);
             if(result) api.sendMessage(pId, [{str:"Result Log: " +JSON.stringify(result), style: { color: "#CEF3FF" } }]);
         }
@@ -429,114 +490,30 @@ const customCms = {
             api.setItemSlot(pId,slot,held?.name,held?.amount,{customAttributes:{enchantments:{[addEnchant.name.trimEnd()]:addEnchant.level}}});
         }
     },
+    getWikiPosition:{
+		settings:{
+			image: "fa-solid fa-lock-open",
+			description: "BKWでのロールを確認します",
+			onBoughtMessage: "表示しました",
+			buyButtonText: "確認"
+		},
+		code:function(pId,sendMessage=true) {
+			const pDbId = api.getPlayerDbId(pId);
+			let pWikiPosition = wikiPositions[wikiPositions.length-1];
+			wikiPositions.forEach(wikiPosition=>{
+				if(wikiPosition.pDbIds.includes(pDbId)) pWikiPosition = wikiPosition;
+			});
+			if(sendMessage) api.sendMessage(pId,[{str:"あなたのBKWでのロール: "},{str:pWikiPosition.name,style:{color:pWikiPosition.color}}]);
+            return(pWikiPosition);
+		}
+	}
 };
-const link = "htt" + "ps:/" + "/bloxd.wikiru." + "jp";
-const customRightInfoText = [
-    {str:"Bloxd攻略 Wiki\n\t\t\t\t撮影用広場\n",style:{color:"lime",fontSize:"20px"}},
-    {str:"--------------------------------\n"},
-    {str:"Basic Info\n",style:{color:"gold"}},
-    {str:"・"},{icon:"fa-solid fa-globe",style:{color:"blue"}},{str:" Wikiru\n"},
-    {str:`\t${link}\n`},
-    {str:"・"},{icon:"youtube",style:{color:"red"}},{str:" YoutubeCh\n"},
-    {str:"\t@Bloxd攻略Wiki動画用ch\n"},
-    {str:"・"},{icon:"fa-solid fa-hammer",style:{color:"purple"}},{str:" 地形破壊禁止\n"},
-    {str:"New Things\n",style:{color:"gold"}},
-    //{str:"・Rodをもって右クリック!\n"},
-    {str:"・[Coder向け] getMsg関数\n"},
-    {str:"・[試験的] ショップメニュー\n\tCommandタブ\n\tspawnMeshEnt" + "ity\n"},
-    {str:"Previous New Things\n",style:{color:"gold"}},
-    {str:"・/helpコマンド\n"},
-    {str:"・コンパスのtp機能\n"}
-];
-let wikiPositions = [
-    {
-        name:"wiki管理人",
-        color:"lime",
-        level:3,
-        pDbIds:[
-            "h3UneKWxIbhyJNmqWZR2q",//aaa_
-        ]
-    },
-    {
-        name:"wiki主要編集者",
-        color:"blue",
-        level:2,
-        pDbIds:[
-            "Vqkj12sBFK_2wpcaFcWGz", //Ryokuryusei_
-            //Bourei
-            //1000yen
-            //Zombiekun
-            //yuuto
-        ]
-    },
-    {
-        name:"wiki編集者",
-        color:"yellow",
-        level:1,
-        pDbIds:[
-            //reiku
-            "-rNnqMMTdKschR4LkpCja"//yey
-        ]
-    },
-    {
-        name:"閲覧者",
-        color:"white",
-        level:0,
-        pDbIds:[]
-    }
-]
-
-function judgeError(pId,check) {
-    if(check.includes("Error")) {
-        api.sendMessage(pId,check.slice(6));
-        return("Error")
-    }
-}
-
-function updateCustomCm(pId,cm,edit) {
-    api.updateShopItemForPlayer(pId,"Command",cm,edit({...customCms[cm].settings}));
-}
-
-function getWikiPosition(pId) {
-    for(let wikiPosition of wikiPositions) {
-        if(wikiPosition.pDbIds.includes(api.getPlayerDbId(pId))) {
-            return(wikiPosition);
-        }
-    }
-    return(wikiPositions[3]);
-}
-
-function sendDamageMessage(attacker,damager,damage,item) {
-    let health = api.getHealth(damager) -damage,
-        msg = [
-            {icon:item,style:{fontSize:"16px"}},{str:String(damage),style:{color:"red"}}
-        ];
-    if(health >0) {
-        msg.push({str:"\n"},{icon:"fa-solid fa-heart",style:{color:"red",fontSize:"16px"}},
-                 {str:String(health),style:{color:"lime"}})
-    }
-    api.sendFlyingMiddleMessage(attacker,msg,25);
-}
 
 onPlayerJoin = (pId) => {
-    const customlobbyLeaderboardInfo = {
-        name: {
-            displayName: "Name",
-            sortPriority: 2,
-        },
-        deviceType: {
-            displayName: "DeviceType",
-            sortPriority: 3,
-        },
-        wiki: {
-            displayName: "wiki編集者",
-            sortPriority: 0,
-        }
-    };
-    const wikiPosition = getWikiPosition(pId);
     for(let customCm in customCms) {
         api.createShopItem("Command",customCm,customCms[customCm].settings)
     }
+    const wikiPosition = customCms.getWikiPosition.code(pId,false);
     api.setClientOption(pId, 'lobbyLeaderboardInfo', customlobbyLeaderboardInfo);
     api.setTargetedPlayerSettingForEveryone(pId,"lobbyLeaderboardValues",{
         deviceType: api.isMobile(pId) ? "Mobile" : "PC",
@@ -545,12 +522,20 @@ onPlayerJoin = (pId) => {
     api.setTargetedPlayerSettingForEveryone(pId,"colorInLobbyLeaderboard",wikiPosition.color,true);
 }
 
+function judgeError(pId,check) {
+    if(check.includes("Error")) {
+        api.sendMessage(pId,check.slice(6));
+        return("Error")
+    }
+}
+
 playerCommand = (pId,cm) => {
     cm = cm.replace(/#</g, "[").replace(/#>/g, "]");
-    let args = cm.replace("chat ", "").split(" "),
-        customCm = customCms?.[args[0]];
+    let args = cm.replace("chat ", "").split(" ");
+
+    const customCm = customCms?.[args[0]];
     if(customCm) {
-        args = (customCm?.forCm) ? customCm?.forCm(args.slice(1)) : args.slice(1);
+        args = (customCm?.forCm) ? customCm.forCm(args.slice(1)) : args.slice(1);
         let argsToCode = Array.isArray(args) ? args : [args]
         if(!judgeError(pId,String(argsToCode[0]))) {
             let result = customCm.code(pId, ...argsToCode);
@@ -568,14 +553,25 @@ onPlayerBoughtShopItem = (pId, categoryKey, itemKey, item, userInput) => {
     }
 }
 
-onPlayerDamagingOtherPlayer = (attacker, damager, damage, item, bodyPartHit, damagerDbId) => {
-    sendDamageMessage(attacker,damager,damage,item);
+function sendDamageMessage(attacker,damager,damage,item) {
+    const health = api.getHealth(damager) -damage,
+        msg = [
+            {icon:item,style:{fontSize:"16px"}},
+            {str:String(damage),style:{color:"red"}}
+        ];
+    if(health >0) {
+        msg.push(
+            {str:"\n"},{icon:"fa-solid fa-heart",style:{color:"red",fontSize:"16px"}},
+            {str:String(health),style:{color:"lime"}}
+        );
+    }
+    api.sendFlyingMiddleMessage(attacker,msg,25);
 }
+onPlayerDamagingOtherPlayer = sendDamageMessage;
+onPlayerDamagingMob = sendDamageMessage;
 
-onPlayerDamagingMob = (pId, mId, damage, item) => {
-    sendDamageMessage(pId,mId,damage,item);
-}
-
+/* 以下、停止中の機能 */
+/*
 onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
     const pos = [x,y,z],
           block = api.getBlock(pos),
@@ -587,3 +583,4 @@ onPlayerAttemptOpenChest = (pId, x, y, z, isMoonstoneChest, isIronChest) => {
         api.setBlockData(...pos, { persisted: { shared: { text: String(tier), textSize: 2 } } });
     }
 };
+*/
