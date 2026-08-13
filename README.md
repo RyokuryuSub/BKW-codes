@@ -25,6 +25,7 @@
 
 # 編集内容
 ## コマンド
+<img src="./コマンド参考画像.png">
 
 ### 新コード
 定義部: [New Lobby Code 1~374](./New%20Lobby%20Code.js#L1-L386)
