@@ -29,7 +29,7 @@
 
 # 編集内容
 ## コマンド
-<img src="./コマンド参考画像.png" width=30%;>
+<img src="./画像集/コマンド参考画像.png" width=30%;>
 
 ### 機能概要
 オリジナルの「/」から始まるコマンド
@@ -297,7 +297,7 @@ const customCms = {
 
 
 ## ダメージ表示
-新版:<img src="./ダメージ表示.png" width=40%;> 旧版:<img src="./ダメージ表示_旧版.png" width=40%;>
+新版:<img src="./画像集/ダメージ表示.png" width=40%;> 旧版:<img src="./画像集/ダメージ表示_旧版.png" width=40%;>
 ### 機能概要
 モブやプレイヤーを攻撃した際に攻撃の内容を表示
 
@@ -352,7 +352,7 @@ onPlayerDamagingMob = sendDamageMessage;
 
 
 ## Bショップ
-新版:<img src="./コマンド参考画像.png" width=30%;> 旧版: <img src="./Bショップ_旧版.png" width=30%;>
+新版:<img src="./画像集/コマンド参考画像.png" width=30%;> 旧版: <img src="./画像集/Bショップ_旧版.png" width=30%;>
 
 ### 機能概要
 Bキーを押した時に開くショップを介した様々な機能
